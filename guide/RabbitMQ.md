@@ -1,10 +1,12 @@
-# RabbitMQ Setup in WSL (Ubuntu)
+# 🐇 RabbitMQ Setup in WSL (Ubuntu)
 
-This guide documents the steps to **install, configure, and auto-start RabbitMQ** inside WSL.
+This guide documents the steps to **install, configure, and auto-start RabbitMQ** inside WSL (Ubuntu).
 
 ---
 
-## **1. Update and Install Dependencies**
+## 🚀 Setup Instructions
+
+## 1. Update and install dependencies
 ```bash
 sudo apt update
 sudo apt install -y curl gnupg apt-transport-https
@@ -24,87 +26,67 @@ https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu/ focal main" \
 | sudo tee /etc/apt/sources.list.d/rabbitmq.list
 ```
 
-## 4. Update and install RabbitMQ
+## 4. Install and start RabbitMQ
 ```bash
 sudo apt update
 sudo apt install -y rabbitmq-server
 
 sudo service rabbitmq-server start
 sudo service rabbitmq-server status
+```
 
+## Enable management UI
+```bash
 sudo rabbitmq-plugins enable rabbitmq_management
 sudo service rabbitmq-server restart
 ```
 
-http://localhost:15672
-Username: guest  Password: guest
+### RabbitMQ Management UI
 
+You can access the RabbitMQ Management Console here:  
+🔗 [http://localhost:15672](http://localhost:15672)
+
+| Username | Password |
+|----------|----------|
+| `guest`  | `guest`  |
+
+
+## 5. Enable systemd in WSL (optional but recommended)
 ```bash
 notepad $env:USERPROFILE\.wslconfig
 ```
-Add this to the file:
+
+## Add the following lines to the file:
 ```bash
-[boot]
-systemd=true
-```
-
-```
-wsl --shutdown
-```
-
-```
-systemctl --version
-```
-
-```
-sudo systemctl enable rabbitmq-server
-sudo systemctl start rabbitmq-server
-```
-
-```
-sudo systemctl status rabbitmq-server
+# [boot]
+# systemd=true
 ```
 ---
-
-## 1. Add User
 ```bash
-# check status
+wsl --shutdown
+systemctl --version
+
+sudo systemctl enable rabbitmq-server
+sudo systemctl start rabbitmq-server
+sudo systemctl status rabbitmq-server
+```
+
+## 6. Create vhost and user for backend
+```bash
 sudo rabbitmqctl status
-
-# create a new vhost
 sudo rabbitmqctl add_vhost /backend
-
-# add a backend user
 sudo rabbitmqctl add_user backend_user StrongPassword123!
-
-# set permissions for that user on the /backend vhost
 sudo rabbitmqctl set_permissions -p /backend backend_user ".*" ".*" ".*"
+```
 
-# (optional) delete guest user
+## (optional) delete guest user
+```bash
 sudo rabbitmqctl delete_user guest
 ```
 
-## 2. Check User Exists
+## 7. Verify setup
 ```bash
 sudo rabbitmqctl list_users
-```
-
-## 3. Check vhost Exists
-```bash
 sudo rabbitmqctl list_vhosts
-```
-
-## 4. Check User Permission
-```bash
-sudo rabbitmqctl list_permissions -p /
-```
-
-## 5. Enable Management Plugin
-```bash
-sudo rabbitmq-plugins enable rabbitmq_management
-```
-
-## 6. Restart
-```bash
-sudo service rabbitmq-server restart
+sudo rabbitmqctl list_permissions -p /backend
 ```
